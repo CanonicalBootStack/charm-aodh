@@ -117,10 +117,13 @@ class TestAodhHandlers(unittest.TestCase):
             'run_db_migration': ('charm.installed',
                                  'config.complete', ),
             'cluster_connected': ('ha.connected', ),
+            'cluster_changed': ('cluster.changed', ),
+            'config_changed': ('config.changed', ),
         }
         when_not_patterns = {
             'install_packages': ('charm.installed', ),
-            'render_unclustered': ('cluster.available', ),
+            'render_unclustered': ('cluster.available', 'config.complete', ),
+            'render_clustered': ('config.complete', ),
             'run_db_migration': ('db.synced', ),
         }
         # check the when hooks are attached to the expected functions
@@ -161,6 +164,7 @@ class TestAodhHandlers(unittest.TestCase):
         self.patch(handlers.aodh, 'setup_endpoint')
         self.patch(handlers.aodh, 'assess_status')
         self.patch(handlers.aodh, 'configure_ssl')
+        self.patch(handlers.aodh, 'restart_all')
         handlers.setup_endpoint('endpoint_object')
         self.setup_endpoint.assert_called_once_with('endpoint_object')
 

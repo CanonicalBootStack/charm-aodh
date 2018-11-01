@@ -67,8 +67,19 @@ def render(*args):
     aodh.assess_status()
 
 
+@reactive.when('cluster.changed')
+def cluster_changed():
+    reactive.remove_state('config.complete')
+
+
+@reactive.when('config.changed')
+def config_changed():
+    reactive.remove_state('config.complete')
+
+
 @reactive.when('charm.installed')
-@reactive.when_not('cluster.available')
+@reactive.when_not('cluster.available',
+                   'config.complete')
 @reactive.when(*MINIMAL_INTERFACES)
 def render_unclustered(*args):
     aodh.upgrade_if_available(args)
@@ -79,6 +90,7 @@ def render_unclustered(*args):
 @reactive.when('charm.installed')
 @reactive.when('cluster.available',
                *MINIMAL_INTERFACES)
+@reactive.when_not('config.complete')
 def render_clustered(*args):
     aodh.upgrade_if_available(args)
     render(*args)
